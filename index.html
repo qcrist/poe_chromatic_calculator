@@ -8,7 +8,7 @@
             drop: drop_rate,
             "chromatic estimate": chromatic_rate,
             "chromatic bf": chromatic_sim,
-            special: special_rate
+            "Add/Rem Sockets": special_rate
         }
 
         let craft_sizes = [
@@ -26,7 +26,7 @@
                 if (sz.length === 1) {
                     let v = sz[0]
                     for (let [i, c] of RGB.entries()) {
-                        methods[v + c] = ({r, g, b, a, chr, chg, chb}) => {
+                        methods["bench "+v + c] = ({r, g, b, a, chr, chg, chb}) => {
                             let rgb = [r, g, b];
                             if (rgb[i] < sz) return [0, 0];
                             rgb[i] -= sz;
@@ -40,7 +40,7 @@
                         for (let iB = 0; iB < 3; iB++) {
                             if (iB === iA) continue;
                             if (vA === vB && iB < iA) continue;
-                            methods[`${vA}${RGB[iA]}${vB}${RGB[iB]}`] = ({r, g, b, a, chr, chg, chb}) => {
+                            methods["bench "+`${vA}${RGB[iA]}${vB}${RGB[iB]}`] = ({r, g, b, a, chr, chg, chb}) => {
                                 let rgb = [r, g, b];
                                 if (rgb[iA] < vA || rgb[iB] < vB) return [0, 0];
                                 rgb[iA] -= vA;
