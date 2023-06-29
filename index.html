@@ -351,6 +351,7 @@
                     return;
                 }
             }
+            if (red == 0 && green == 0 && blue == 0 && any == 0) return;
 
             let {r: chr, g: chg, b: chb} = color_chances(target_str, target_dex, target_int);
             console.log({chr,chg,chb});
