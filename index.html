@@ -181,7 +181,7 @@
             while (hits < 5000 && took < 10_000_000) {
                 let next = genC();
                 if (next === at) continue;
-                if (hits > 5 && took / hits > 10_000)  return [0,0];
+                if ((hits > 5 && took / hits > 10_000) || (hits < 5 && took > 100_000))  return [0,0];
                 took++;
                 if (key_test[next]) {
                     hits++;
@@ -279,6 +279,7 @@
         function chromatic_rate({r, g, b, a, chr, chg, chb}) {
 
             let total = r + g + b + a;
+            if (total <= 0) return [0,0]
 
             let table = {};
             let sumBad = 0;
