@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Chromatic Calculator</title>
     <script>
         let methods = {
             drop: drop_rate,
@@ -177,7 +177,7 @@
             let took = 0;
             let hits = 0;
             let at = genSeed();
-            while (hits < 100 && took < 100_000) {
+            while (hits < 500 && took < 500_000) {
                 let next = genC();
                 if (next === at) continue;
                 took++;
@@ -403,32 +403,6 @@
             update();
         }
 
-        setTimeout(() => inputItemClass("Item Class: Gloves\n" +
-            "Rarity: Rare\n" +
-            "Eagle Touch\n" +
-            "Titan Gauntlets\n" +
-            "--------\n" +
-            "Quality: +20% (augmented)\n" +
-            "Armour: 573 (augmented)\n" +
-            "--------\n" +
-            "Requirements:\n" +
-            "Level: 69\n" +
-            "Str: 148\n" +
-            "--------\n" +
-            "Sockets: R-R-R-R \n" +
-            "--------\n" +
-            "Item Level: 84\n" +
-            "--------\n" +
-            "10% of Physical Damage Converted to Cold Damage (implicit)\n" +
-            "While a Pinnacle Atlas Boss is in your Presence, Adds 17 to 32 Fire Damage to Attacks (implicit)\n" +
-            "--------\n" +
-            "+50 to Dexterity\n" +
-            "12% increased Attack Speed\n" +
-            "98% increased Armour\n" +
-            "+44% to Lightning Resistance\n" +
-            "+65 to maximum Life (crafted)\n" +
-            "Searing Exarch Item\n" +
-            "Eater of Worlds Item"), 500);
 
         window.addEventListener("paste", ev => {
             let data = ev.clipboardData;
