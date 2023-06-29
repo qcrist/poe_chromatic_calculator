@@ -178,9 +178,10 @@
             let took = 0;
             let hits = 0;
             let at = genSeed();
-            while (hits < 2000 && took < 10_000_000) {
+            while (hits < 5000 && took < 10_000_000) {
                 let next = genC();
                 if (next === at) continue;
+                if (hits > 5 && took / hits > 10_000)  return [0,0];
                 took++;
                 if (key_test[next]) {
                     hits++;
