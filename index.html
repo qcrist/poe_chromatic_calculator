@@ -178,7 +178,7 @@
             let took = 0;
             let hits = 0;
             let at = genSeed();
-            while (hits < 500 && took < 10_000_000) {
+            while (hits < 2000 && took < 10_000_000) {
                 let next = genC();
                 if (next === at) continue;
                 took++;
@@ -190,7 +190,7 @@
                 }
             }
 
-            // console.log(took, hits, hits / took * 100, took / hits)
+            console.log(took, hits, hits / took * 100, took / hits)
 
             let avg_before_hit = took / hits;
 
