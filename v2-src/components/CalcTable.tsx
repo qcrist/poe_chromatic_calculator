@@ -1,8 +1,6 @@
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useEffect, useState} from "react";
 import {AppConfigParameter, AppConfigState, useAppState} from "#root/state";
-import {shallow} from "zustand/shallow";
-import {Matrix, EigenvalueDecomposition, inverse} from "ml-matrix";
-import * as mathjs from "mathjs";
+import {Matrix} from "ml-matrix";
 
 type calc_entry = {
     method: string,

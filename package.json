@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "immer": "^10.0.3",
-    "mathjs": "^12.2.0",
     "ml-matrix": "^6.11.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
