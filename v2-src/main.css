@@ -1,0 +1,102 @@
+.red {
+    background-color: #Faa;
+}
+
+.green {
+    background-color: #AFA;
+}
+
+.blue {
+    background-color: #aaf;
+}
+
+.any {
+    background-color: #ddd;
+}
+
+.cell {
+    box-sizing: border-box;
+    padding: 3px;
+    width: 3em;
+    text-align: center;
+    /*border: none;*/
+    border: 2px solid #333;
+    border-radius: 4px;
+}
+
+.centered {
+    width: 800px;
+    margin-left: calc(50vw - 400px);
+    margin-right: calc(50vw - 400px);
+    background: #444;
+    box-sizing: border-box;
+    padding: 20px;
+}
+
+html {
+    background: #222;
+    font-family: fontin smallcaps, monospace;
+}
+
+h1 {
+    text-align: center;
+    color: #ECD574;
+
+    /*text-shadow: 0 0 .2em rgb(163,31,7), 5px 5 10px #B76B2B;*/
+    /*text-shadow: 1px 1px white, -1px -1px #444;*/
+    /*-webkit-text-stroke: 0.5px #B76B2B;*/
+    font-size: 3.5rem;
+}
+
+
+.toptable {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr auto auto auto auto 1fr;
+    grid-template-rows: 1fr 1fr;
+    place-items: center;
+    grid-gap: 5px;
+}
+
+.toptable span {
+    color: white;
+    font-size: 1.2em;
+    text-align: right;
+    padding-right: 5px;
+    width: 100%;
+}
+
+body[bad_sockets] .sockets {
+    color: darkred;
+}
+
+
+#botH_table {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto;
+    place-items: center;
+    grid-gap: 5px;
+    color: white;
+    font-size: 1.2em;
+    margin-bottom: .5em;
+}
+
+#bot_table {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    grid-template-rows: auto;
+    place-items: center;
+    grid-gap: 5px;
+    color: white;
+}
+
+.jwl {
+    background-color: #c5b358;
+    box-sizing: border-box;
+    grid-column-end: span 2;
+    width: calc(6em + 5px);
+    color: black;
+}

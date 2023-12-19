@@ -1,0 +1,98 @@
+function method_naive(config: AppConfigState, ch: color_ch): method_result {
+    const {target_red: r, target_any: a, target_green: g, target_blue: b} = config;
+    const {r: chr, g: chg, b: chb} = ch;
+
+    let c = r + g + b + a;
+
+    function key_prob_fn(key: string) {
+        return key.split("")
+            .map(char => ch[char.toLowerCase() as ("r" | "g" | "b")] ?? 0)
+            .reduce((a, b) => a * b);
+    }
+
+    const keys = explodeRGB(c);
+    const key_test: { [key: string]: boolean } = {};
+    const key_prob: { [key: string]: number } = {};
+    let pSucc = 0;
+    for (const key of keys) {
+        key_test[key] = doesKeySatisfy(key, config)
+        key_prob[key] = key_prob_fn(key);
+        if (key_test[key]) {
+            pSucc += key_prob[key]
+        }
+    }
+
+    return {
+        attempts: 1 / pSucc,
+        // actions: 1 / pSucc,
+        attempt_cost_chr: 1,
+        attempt_cost_jwl: 0
+    }
+}
+
+function method_chromatic_sim(config: AppConfigState, ch: color_ch): method_result {
+    const {target_red: r, target_any: a, target_green: g, target_blue: b} = config;
+    const {r: chr, g: chg, b: chb} = ch;
+
+    let c = r + g + b + a;
+
+    let keys = explodeRGB(c);
+    let key_test: { [key: string]: boolean } = {};
+    for (let i = 0; i < keys.length; i++) {
+        key_test[keys[i]] = doesKeySatisfy(keys[i], config)
+    }
+
+    // console.log(key_test);
+
+    let chrg = chr + chg;
+
+    function gen1() {
+        let r = Math.random();
+        if (r < chr) {
+            return "R";
+        } else if (r < chrg) {
+            return "G";
+        }
+        return "B";
+    }
+
+    function genC() {
+        let v = "";
+        for (let i = 0; i < c; i++)
+            v += gen1();
+        return v;
+    }
+
+    function genSeed() {
+        let v = genC();
+        while (key_test[v])
+            v = genC();
+        return v;
+    }
+
+    let took = 0;
+    let hits = 0;
+    let at = genSeed();
+    while (hits < 100000 && took < 1_000_000) {
+        let next = genC();
+        if (next === at) continue;
+        took++;
+        if (key_test[next]) {
+            hits++;
+            at = genSeed();
+        } else {
+            at = next;
+        }
+    }
+
+    // console.log(took, hits, hits / took * 100, took / hits)
+
+    let avg_before_hit = took / hits;
+
+    return {
+        attempts: avg_before_hit,
+        attempt_cost_jwl: 0,
+        // actions: avg_before_hit,
+        attempt_cost_chr: 1
+    }
+}

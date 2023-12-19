@@ -178,10 +178,9 @@
             let took = 0;
             let hits = 0;
             let at = genSeed();
-            while (hits < 5000 && took < 10_000_000) {
+            while (hits < 100 && took < 100_000) {
                 let next = genC();
                 if (next === at) continue;
-                if ((hits > 5 && took / hits > 10_000) || (hits < 5 && took > 100_000))  return [0,0];
                 took++;
                 if (key_test[next]) {
                     hits++;
@@ -191,7 +190,7 @@
                 }
             }
 
-            console.log(took, hits, hits / took * 100, took / hits)
+            // console.log(took, hits, hits / took * 100, took / hits)
 
             let avg_before_hit = took / hits;
 
@@ -204,10 +203,10 @@
             let r2 = [...ord].sort((a, b) => a - b)[1]
             let is_mono = r2 === 0;
 
-            if (str == dex && dex == int){
+            if (str === dex && dex === int){
                 return {r:1/3,g:1/3,b:1/3};
             }
-            
+
             if (ord.indexOf(0) === -1 || r1 === 0)
                 throw new Error("Unexpected coloring!");
 
@@ -351,7 +350,7 @@
                     return;
                 }
             }
-            if (red == 0 && green == 0 && blue == 0 && any == 0) return;
+            if (red === 0 && green === 0 && blue === 0 && any === 0) return;
 
             let {r: chr, g: chg, b: chb} = color_chances(target_str, target_dex, target_int);
             console.log({chr,chg,chb});
@@ -411,6 +410,34 @@
             update();
         }
 
+        setTimeout(
+// language=TEXT
+            () => inputItemClass("Item Class: Gloves\n" +
+            "Rarity: Rare\n" +
+            "Eagle Touch\n" +
+            "Titan Gauntlets\n" +
+            "--------\n" +
+            "Quality: +20% (augmented)\n" +
+            "Armour: 573 (augmented)\n" +
+            "--------\n" +
+            "Requirements:\n" +
+            "Level: 69\n" +
+            "Str: 148\n" +
+            "--------\n" +
+            "Sockets: R-R-R-R \n" +
+            "--------\n" +
+            "Item Level: 84\n" +
+            "--------\n" +
+            "10% of Physical Damage Converted to Cold Damage (implicit)\n" +
+            "While a Pinnacle Atlas Boss is in your Presence, Adds 17 to 32 Fire Damage to Attacks (implicit)\n" +
+            "--------\n" +
+            "+50 to Dexterity\n" +
+            "12% increased Attack Speed\n" +
+            "98% increased Armour\n" +
+            "+44% to Lightning Resistance\n" +
+            "+65 to maximum Life (crafted)\n" +
+            "Searing Exarch Item\n" +
+            "Eater of Worlds Item"), 500);
 
         window.addEventListener("paste", ev => {
             let data = ev.clipboardData;
@@ -559,15 +586,15 @@
         <span></span>
         <span></span>
         <span>Requirements</span>
-        <input class="cell red" id="str" type="text" value="0" placeholder="S" oninput="update()"/>
-        <input class="cell green" id="dex" type="text" value="0" placeholder="D" oninput="update()"/>
-        <input class="cell blue" id="int" type="text" value="0" placeholder="I" oninput="update()"/>
+        <input class="cell red" id="str" type="text" value="1" placeholder="S" oninput="update()"/>
+        <input class="cell green" id="dex" type="text" value="1" placeholder="D" oninput="update()"/>
+        <input class="cell blue" id="int" type="text" value="2" placeholder="I" oninput="update()"/>
         <span></span>
         <span></span>
         <span class="sockets">Sockets</span>
-        <input class="cell red" id="red" type="text" value="0" placeholder="R" oninput="update()"/>
-        <input class="cell green" id="green" type="text" value="0" placeholder="G" oninput="update()"/>
-        <input class="cell blue" id="blue" type="text" value="0" placeholder="B" oninput="update()"/>
+        <input class="cell red" id="red" type="text" value="1" placeholder="R" oninput="update()"/>
+        <input class="cell green" id="green" type="text" value="1" placeholder="G" oninput="update()"/>
+        <input class="cell blue" id="blue" type="text" value="2" placeholder="B" oninput="update()"/>
         <input class="cell any" id="any" type="text" value="0" placeholder="A" oninput="update()"/>
 
     </div>
