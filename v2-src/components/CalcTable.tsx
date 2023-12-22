@@ -1,6 +1,6 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useMemo, useState} from "react";
 import {AppConfigParameter, AppConfigState, useAppState} from "#root/state";
-import {Matrix} from "ml-matrix";
+import {Matrix, EVD} from "ml-matrix";
 
 type calc_entry = {
     method: string,
@@ -87,94 +87,76 @@ function method_drop(config: AppConfigState, ch: color_ch): method_result {
     }
 }
 
-function explodeRGB(n: number): string[] {
-    if (n <= 1) return ["R", "G", "B"];
-    let prev = explodeRGB(n - 1);
-    return [
-        ...prev.map(x => x + "R"),
-        ...prev.map(x => x + "G"),
-        ...prev.map(x => x + "B"),
-    ];
-}
+function explodeRGB2(n: number) {
+    const obj: { [k: string]: { colors: { r: number, g: number, b: number }, count: number } } = {};
 
-function cRGBtoCounts(rgb: string) {
-    let counts = {R: 0, G: 0, B: 0};
-    for (let ch of rgb) {
-        counts[ch as keyof typeof counts] += 1
+    function gen(z: number): number[][] {
+        //pretty inefficient, but fast enough for low n
+        if (z <= 0) return [[0, 0, 0]];
+        const m1 = gen(z - 1);
+        return [
+            ...m1.map(([r, g, b]) => [r + 1, g, b]),
+            ...m1.map(([r, g, b]) => [r, g + 1, b]),
+            ...m1.map(([r, g, b]) => [r, g, b + 1]),
+        ]
     }
-    return counts
+
+    for (const [r, g, b] of gen(n)) {
+        const key = `${r}r${g}g${b}b`;
+        if (!obj[key])
+            obj[key] = {colors: {r, g, b}, count: 1};
+        else
+            obj[key].count++;
+    }
+
+    return obj;
 }
 
-function doesKeySatisfy(key: string, config: AppConfigState) {
-    const {target_red: r, target_green: g, target_blue: b} = config;
-    let c = cRGBtoCounts(key);
-    return c.R >= r && c.G >= g && c.B >= b;
+
+function objMap<T, A>(obj: { [key: string]: T }, map: (key: string, v: T) => A) {
+    return Object.fromEntries(Object.entries(obj).map(([k, v]) => [k, map(k, v)]));
 }
 
-function wait(n: number = 0) {
-    return new Promise<void>((cb) => {
-        setTimeout(cb, n);
-    })
-}
 
-async function method_chromatic_orb(config: AppConfigState, ch: color_ch): Promise<method_result> {
+function method_chromatic_orb(config: AppConfigState, ch: color_ch): method_result {
     const {target_red: r, target_any: a, target_green: g, target_blue: b} = config;
 
     let c = r + g + b + a;
 
-    function key_prob_fn(key: string) {
-        return key.split("")
-            .map(char => ch[char.toLowerCase() as ("r" | "g" | "b")] ?? 0)
-            .reduce((a, b) => a * b);
-    }
-
-    async function mdup(matrix: Matrix, n: number) {
-        let z = matrix;
-        if (matrix.columns > 300) await wait();
-        for (let i = 0; i < n; i++) {
-            z = z.mmul(z);
-            if (matrix.columns > 300) await wait();
-        }
-        return z;
-    }
-
-    const keys = explodeRGB(c);
-    const key_test: { [key: string]: boolean } = {};
-    const key_prob: { [key: string]: number } = {};
-    let pSucc = 0;
-    for (const key of keys) {
-        key_test[key] = doesKeySatisfy(key, config)
-        key_prob[key] = key_prob_fn(key);
-        if (key_test[key]) {
-            pSucc += key_prob[key]
-        }
-    }
-
+    const explode = objMap(explodeRGB2(c), (k, v) => {
+        const {r, g, b} = v.colors;
+        const {target_red: tr, target_green: tg, target_blue: tb} = config;
+        const p = Math.pow(ch.r, r) * Math.pow(ch.g, g) * Math.pow(ch.b, b);
+        return ({
+            ...v,
+            test: r >= tr && b >= tb && g >= tg,
+            prob_self: p * (v.count - 1),
+            prob_group: p * v.count,
+            prob_one: p,
+        });
+    });
+    const explodeKeys = Object.keys(explode);
 
     const trans = new Matrix(
-        keys.map(row =>
-            keys.map(col => {
-                if (row === col) return 0;
-                return key_prob[row] / (1 - key_prob[col]);
+        explodeKeys.map(row =>
+            explodeKeys.map(col => {
+                if (row == col) return explode[row].prob_self / (1 - explode[col].prob_one);
+                return explode[row].prob_group / (1 - explode[col].prob_one);
             })
         )
-    )//2.6 to about 1.01
+    )
 
-    const iter_map: { [key: number]: number } = {
-        0: 20,
-        1: 20,
-        2: 20,
-        3: 20,
-        4: 10,
-        5: 8,
-        6: 4
-    }
+    // const final = await mdup(trans, 20);
+    // const chances = final.getColumn(0);
 
-    const final = await mdup(trans, iter_map[c]);
-    const chances = final.getColumn(0);
+    const evd = new EVD(trans);
+    const eigen_1 = evd.realEigenvalues.findIndex(x => x > .99)
+    const eigen_col = evd.eigenvectorMatrix.getColumn(eigen_1);
+    const eigen_col_sum = eigen_col.reduce((a, b) => a + b);
+    const chances = eigen_col.map(x => x / eigen_col_sum);
 
-    const fpSucc = keys
-        .map((k, i) => (key_test[k] ? chances[i] : 0))
+    const fpSucc = explodeKeys
+        .map((k, i) => (explode[k].test ? chances[i] : 0))
         .reduce((a, b) => a + b);
     const p = fpSucc / (1 - fpSucc); // we don't attempt on already successful, normalize that out
 
@@ -246,16 +228,13 @@ function method_add_rem(config: AppConfigState, ch: color_ch): method_result | n
 }
 
 const methods = gen_methods();
-type maybe_async<T> = Promise<T> | T;
-type methods_t = { [key: string]: (state: AppConfigState, ch: color_ch) => maybe_async<method_result | null> }
+type methods_t = { [key: string]: (state: AppConfigState, ch: color_ch) => method_result | null }
 
 function gen_methods() {
     const result: methods_t = {
         "Drop": method_drop,
         "Add/Rem Sockets": method_add_rem,
         "Chromatic Orb": method_chromatic_orb,
-        // "Chromatic NAI": method_naive,
-        // "Chromatic Sim": method_chromatic_sim
     };
 
     const RGB: { [key: string]: AppConfigParameter } = {
@@ -302,7 +281,7 @@ function gen_methods() {
     return result;
 }
 
-async function calcResults(config: AppConfigState) {
+function calcResults(config: AppConfigState) {
     const {
         target_red,
         target_any,
@@ -318,7 +297,7 @@ async function calcResults(config: AppConfigState) {
     const color_chance = color_chances(config);
 
     for (let [method, v] of Object.entries(methods)) {
-        const res = await v(config, color_chance);
+        const res = v(config, color_chance);
         if (!res) continue;
         results.push({method, ...res})
     }
@@ -362,20 +341,8 @@ function describe_total_cost(e: calc_entry) {
 export function CalcTable() {
     const config = useAppState(s => s.config);
     const setRequirements = useAppState(s => s.setRequirements);
-    const [results, setResults] = useState<calc_entry[]>([])
 
-    useEffect(() => {
-        const res = calcResults(config);
-        setResults([{
-            method: "Computing...",
-            attempt_cost_jwl: 0,
-            attempt_cost_chr: 0,
-            attempts: 0
-        }]);
-        res.then(data => {
-            setResults(data);
-        })
-    }, [config]);
+    const results = useMemo(() => calcResults(config), [config]);
 
     useEffect(() => {
         const controller = new AbortController();

@@ -7,6 +7,7 @@
     "pack-client-prod": "esbuild --minify --bundle v2-src/index.tsx --outfile=v2-src/dist/main.bundle.js"
   },
   "dependencies": {
+    "eigen": "^0.2.2",
     "immer": "^10.0.3",
     "ml-matrix": "^6.11.0",
     "react": "^18.2.0",

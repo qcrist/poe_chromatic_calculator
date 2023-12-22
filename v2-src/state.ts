@@ -25,12 +25,19 @@ export type AppState = {
 export const useAppState = create<Immutable<AppState>>((set) => ({
     config: {
         jewels_per_chroma: 3,
-        req_str: 0,
+        // req_str: 0,
+        // req_dex: 0,
+        // req_int: 0,
+        // target_red: 0,
+        // target_green: 0,
+        // target_blue: 0,
+        // target_any: 0,
+        req_str: 100,
         req_dex: 0,
         req_int: 0,
         target_red: 0,
         target_green: 0,
-        target_blue: 0,
+        target_blue: 1,
         target_any: 0,
     },
     setConfigParameter(param, value) {
